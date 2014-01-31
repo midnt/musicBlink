@@ -47,13 +47,13 @@ public class ConfigureListActivity extends Activity {
             }
         });
 
-//        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
-//        startActivityForResult(i, AUDIO_SELECTOR);
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-        i.setType("*/*");
-        i.addCategory(Intent.CATEGORY_OPENABLE);
-        Intent c = Intent.createChooser(i, "Select soundfile");
-        startActivityForResult(c, AUDIO_SELECTOR);
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, AUDIO_SELECTOR);
+//        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+//        i.setType("*/*");
+//        i.addCategory(Intent.CATEGORY_OPENABLE);
+//        Intent c = Intent.createChooser(i, "Select soundfile");
+//        startActivityForResult(c, AUDIO_SELECTOR);
     }
 
 
