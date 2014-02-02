@@ -14,6 +14,7 @@ import com.midnight.musicblink.provider.WidgetProvider;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class WidgetFactory implements RemoteViewsService.RemoteViewsFactory {
 
     private Context context;

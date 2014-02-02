@@ -1,4 +1,4 @@
-.idea
-/out
-/musicBlink/gen
 *.iml
+
+.idea
+target
