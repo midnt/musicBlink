@@ -73,4 +73,9 @@ public class SoundPlayer {
     }
 
 
+    public void stop() {
+        arrayList.clear();
+        mediaPlayer.stop();
+        mediaPlayer.reset();
+    }
 }

@@ -18,6 +18,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     private static final String SHOW_DIALOG_ACTION = "com.byteslounge.android.widgetshowdialog";
     private final static String ACTION_ON_CLICK = "com.byteslounge.android.widget.itemonclick";
+    private final static String ACTION_ON_CLICK1 = "com.byteslounge.android.widget.itemonclick1";
 
     public final static String ITEM_POSITION = "item_position";
 
@@ -35,22 +36,10 @@ public class WidgetProvider extends AppWidgetProvider {
                 showConfigureActivity(context, intent.getIntExtra(ConfigureListActivity.EXTRA_WIDGET_ID, 0));
             } else if (ACTION_ON_CLICK.equals(action)) {
                 onItemClick(context, intent.getIntExtra(ITEM_POSITION, -1));
+            } else if(ACTION_ON_CLICK1.equals(action)){
+                SoundPlayer.getInstance().stop();
             }
         }
-//        if (intent != null && intent.getAction() != null) {
-//            if (intent.getAction().equalsIgnoreCase(SHOW_DIALOG_ACTION)) {
-//                Intent addDialogIntent = new Intent(context, AddDialog.class);
-//                addDialogIntent.putExtra(AddDialog.EXTRA_WIDGET_ID, intent.getIntExtra(AddDialog.EXTRA_WIDGET_ID, 0));
-//                addDialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(addDialogIntent);
-//            } else if (intent.getAction().equalsIgnoreCase(ACTION_ON_CLICK)) {
-//                int itemPos = intent.getIntExtra(ITEM_POSITION, -1);
-//                if (itemPos != -1) {
-//                    onItemClick(context, itemPos);
-//                }
-//            }
-//        }
-
 
     }
 
@@ -73,14 +62,6 @@ public class WidgetProvider extends AppWidgetProvider {
 
 
     private void playUri(final Context context, final Uri uri) {
-//        MediaPlayer mediaPlayer = new MediaPlayer();
-//        try {
-//            mediaPlayer.setDataSource(context, uri);
-//            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//        } catch (IOException e) {
-//            Log.e("musicB", e.getMessage());
-//        }
         SoundPlayer.getInstance().play(uri);
 
     }
@@ -130,6 +111,13 @@ public class WidgetProvider extends AppWidgetProvider {
         intent.setAction(SHOW_DIALOG_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, 0);
         rv.setOnClickPendingIntent(R.id.add_button, pendingIntent);
+
+
+        Intent intent1 = new Intent(context, WidgetProvider.class);
+        intent1.setAction(ACTION_ON_CLICK1);
+        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(context, 0, intent1, 0);
+        rv.setOnClickPendingIntent(R.id.stop_button, pendingIntent1);
+
     }
 
 
