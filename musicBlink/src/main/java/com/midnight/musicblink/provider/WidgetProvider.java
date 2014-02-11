@@ -4,11 +4,11 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
-import com.midnight.musicblink.activity.ConfigureListActivity;
+import com.midnight.musicblink.activity.SettingActivity;
 import com.midnight.musicblink.mediaplayer.SoundPlayer;
 import com.midnight.musicblink.service.WidgetService;
+import com.midnight.musicblink.utils.UriUtils;
 import com.midnight.musicblink.view.WidgetRemoteViewFactory;
 
 public class WidgetProvider extends AppWidgetProvider {
@@ -30,18 +30,14 @@ public class WidgetProvider extends AppWidgetProvider {
             SoundPlayer.getInstance().stop();
         } else if (ACTION_ON_CLICK.equals(action)) {
             final String uri = intent.getStringExtra(ITEM_URI);
-            SoundPlayer.getInstance().play(createUri(uri));
+            SoundPlayer.getInstance().play(UriUtils.getUriFromString(uri));
         }
     }
 
     private void openSettings(final Context context) {
-        final Intent intent = new Intent(context, ConfigureListActivity.class);
+        final Intent intent = new Intent(context, SettingActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
-    }
-
-    private Uri createUri(final String path) {
-        return Uri.parse(path);
     }
 
 

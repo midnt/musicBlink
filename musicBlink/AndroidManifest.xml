@@ -7,7 +7,9 @@
 
         <activity
                 android:name=".activity.ConfigureListActivity">
-
+        </activity>
+        <activity
+                android:name=".activity.SettingActivity">
         </activity>
 
         <service

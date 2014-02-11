@@ -16,6 +16,7 @@ import com.midnight.musicblink.data.SoundData;
 import com.midnight.musicblink.data.SoundDataManager;
 import com.midnight.musicblink.data.impl.SoundItem;
 import com.midnight.musicblink.provider.WidgetProvider;
+import com.midnight.musicblink.utils.UriUtils;
 
 public class ConfigureListActivity extends Activity {
 
@@ -33,11 +34,10 @@ public class ConfigureListActivity extends Activity {
         soundData = SoundDataManager.getSoundData();
 
         nameEditText = (EditText) findViewById(R.id.dialog_name_text);
-        Button selectSoundButton = (Button) findViewById(R.id.dialog_ok_button);
+        final Button selectSoundButton = (Button) findViewById(R.id.dialog_ok_button);
         selectSoundButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-
                 onClickOk();
             }
         });
@@ -53,7 +53,8 @@ public class ConfigureListActivity extends Activity {
         switch (requestCode) {
             case AUDIO_SELECTOR: {
                 if (resultCode == Activity.RESULT_OK && data.getData() != null) {
-                    soundFileUri = data.getData();
+                    soundFileUri = UriUtils.getRealUriFromUri(this, data.getData());
+                    nameEditText.setText(soundFileUri.getLastPathSegment());
                 } else {
                     finish();
                 }
@@ -61,6 +62,7 @@ public class ConfigureListActivity extends Activity {
             }
         }
     }
+
 
     private void onClickOk() {
         String name = nameEditText.getText().toString();
