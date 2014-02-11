@@ -1,133 +1,60 @@
 package com.midnight.musicblink.provider;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.RemoteViews;
-import com.midnight.musicblink.R;
 import com.midnight.musicblink.activity.ConfigureListActivity;
-import com.midnight.musicblink.data.SoundDataManager;
 import com.midnight.musicblink.mediaplayer.SoundPlayer;
 import com.midnight.musicblink.service.WidgetService;
+import com.midnight.musicblink.view.WidgetRemoteViewFactory;
 
 public class WidgetProvider extends AppWidgetProvider {
 
-    private static final String SHOW_DIALOG_ACTION = "com.byteslounge.android.widgetshowdialog";
-    private final static String ACTION_ON_CLICK = "com.byteslounge.android.widget.itemonclick";
-    private final static String ACTION_ON_CLICK1 = "com.byteslounge.android.widget.itemonclick1";
-
-    public final static String ITEM_POSITION = "item_position";
+    public static final String ACTION_SETTINGS = "com.midnight.musicblink.settings";
+    public static final String ACTION_STOP = "com.midnight.musicblink.onitemstop";
+    public final static String ACTION_ON_CLICK = "com.midnight.musicblink.onitemclick";
+    public final static String ITEM_URI = "com.midnight.musicblink.itemuri";
 
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
         super.onReceive(context, intent);
-        Log.i("musicB", "onReceive");
-
-        if (intent != null && intent.getAction() != null) {
-            String action = intent.getAction();
-            Log.i("musicB", "receiver: " + action);
-
-            if (SHOW_DIALOG_ACTION.equalsIgnoreCase(action)) {
-                showConfigureActivity(context, intent.getIntExtra(ConfigureListActivity.EXTRA_WIDGET_ID, 0));
-            } else if (ACTION_ON_CLICK.equals(action)) {
-                onItemClick(context, intent.getIntExtra(ITEM_POSITION, -1));
-            } else if(ACTION_ON_CLICK1.equals(action)){
-                SoundPlayer.getInstance().stop();
-            }
+        final String action = intent.getAction();
+        Log.i(getClass().getName(), action);
+        if (ACTION_SETTINGS.equals(action)) {
+            openSettings(context);
+        } else if (ACTION_STOP.equals(action)) {
+            SoundPlayer.getInstance().stop();
+        } else if (ACTION_ON_CLICK.equals(action)) {
+            final String uri = intent.getStringExtra(ITEM_URI);
+            SoundPlayer.getInstance().play(createUri(uri));
         }
-
     }
 
-    private void showConfigureActivity(final Context context, final int widgetId) {
-        Intent intent = new Intent(context, ConfigureListActivity.class);
-        intent.putExtra(ConfigureListActivity.EXTRA_WIDGET_ID, widgetId);
+    private void openSettings(final Context context) {
+        final Intent intent = new Intent(context, ConfigureListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 
-
-    private void onItemClick(final Context context, final int position) {
-        if (position < 0) {
-            return;
-        }
-
-        Uri uri = Uri.parse(SoundDataManager.getSoundData().getItem(position).getFileUri());
-        playUri(context, uri);
+    private Uri createUri(final String path) {
+        return Uri.parse(path);
     }
 
-
-    private void playUri(final Context context, final Uri uri) {
-        SoundPlayer.getInstance().play(uri);
-
-    }
 
     @Override
     public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, final int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-
+        final WidgetRemoteViewFactory remoteViewFactory = new WidgetRemoteViewFactory();
+        final Intent adapter = new Intent(context, WidgetService.class);
         for (int i : appWidgetIds) {
-            updateWidget(context, appWidgetManager, i);
+            appWidgetManager.updateAppWidget(i, remoteViewFactory.createView(context, adapter));
         }
     }
 
-    private void updateWidget(final Context context, final AppWidgetManager manager, int widgetId) {
-        RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.music_b_widget);
-
-        Log.i("musicB", "provider: update");
-
-        setButtonListener(rv, context, widgetId, manager);
-
-        setList(rv, context, widgetId);
-
-        setListClickListener(rv, context, widgetId);
-
-
-        manager.updateAppWidget(widgetId, rv);
-        manager.notifyAppWidgetViewDataChanged(widgetId, R.id.music_list);
-
-
-        Log.i("musicB", "updateWidget");
-
-    }
-
-
-    private void setList(final RemoteViews rv, final Context context, final int widgetId) {
-        Intent adapter = new Intent(context, WidgetService.class);
-        adapter.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-        rv.setRemoteAdapter(R.id.music_list, adapter);
-    }
-
-
-    private void setButtonListener(final RemoteViews rv, final Context context, final int widgetId, final AppWidgetManager manager) {
-
-
-        Intent intent = new Intent(context, WidgetProvider.class);
-        intent.putExtra(ConfigureListActivity.EXTRA_WIDGET_ID, widgetId);
-        intent.setAction(SHOW_DIALOG_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, 0);
-        rv.setOnClickPendingIntent(R.id.add_button, pendingIntent);
-
-
-        Intent intent1 = new Intent(context, WidgetProvider.class);
-        intent1.setAction(ACTION_ON_CLICK1);
-        PendingIntent pendingIntent1 = PendingIntent.getBroadcast(context, 0, intent1, 0);
-        rv.setOnClickPendingIntent(R.id.stop_button, pendingIntent1);
-
-    }
-
-
-    private void setListClickListener(RemoteViews rv, Context context, int appWidgetId) {
-        Intent listClickIntent = new Intent(context, WidgetProvider.class);
-        listClickIntent.setAction(ACTION_ON_CLICK);
-        PendingIntent listClickPIntent = PendingIntent.getBroadcast(context, 0,
-                listClickIntent, 0);
-        rv.setPendingIntentTemplate(R.id.music_list, listClickPIntent);
-    }
 
     @Override
     public void onDeleted(final Context context, final int[] appWidgetIds) {

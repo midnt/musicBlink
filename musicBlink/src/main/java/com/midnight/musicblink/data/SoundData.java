@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface SoundData {
 
-    public List<SoundItem> getAll();
+    List<SoundItem> getAll();
 
-    public void addItem(SoundItem item);
+    void addItem(SoundItem item);
 
-    public SoundItem getItem(int id);
+    SoundItem getItem(int id);
 }

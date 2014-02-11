@@ -1,8 +1,8 @@
 package com.midnight.musicblink.activity;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,10 +19,7 @@ import com.midnight.musicblink.provider.WidgetProvider;
 
 public class ConfigureListActivity extends Activity {
 
-    public static final String EXTRA_WIDGET_ID = "widgetID";
     public static final int AUDIO_SELECTOR = 0x10;
-
-    private int widgetId;
 
     private EditText nameEditText;
     private SoundData soundData;
@@ -34,8 +31,6 @@ public class ConfigureListActivity extends Activity {
         setContentView(R.layout.configurate_activity);
 
         soundData = SoundDataManager.getSoundData();
-
-        widgetId = getIntent().getIntExtra(EXTRA_WIDGET_ID, 0);
 
         nameEditText = (EditText) findViewById(R.id.dialog_name_text);
         Button selectSoundButton = (Button) findViewById(R.id.dialog_ok_button);
@@ -49,11 +44,6 @@ public class ConfigureListActivity extends Activity {
 
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, AUDIO_SELECTOR);
-//        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-//        i.setType("*/*");
-//        i.addCategory(Intent.CATEGORY_OPENABLE);
-//        Intent c = Intent.createChooser(i, "Select soundfile");
-//        startActivityForResult(c, AUDIO_SELECTOR);
     }
 
 
@@ -76,26 +66,21 @@ public class ConfigureListActivity extends Activity {
         String name = nameEditText.getText().toString();
         SoundItem soundItem = new SoundItem();
         soundItem.setName(name);
-        soundItem.setFileUri(soundFileUri.toString());
+        soundItem.setFileUri(((Object) soundFileUri).toString());
         soundData.addItem(soundItem);
         sendUpdateWidgetPendingIntent();
         finish();
     }
 
     private void sendUpdateWidgetPendingIntent() {
-        Intent updateIntent = new Intent(this, WidgetProvider.class);
-        updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                new int[]{widgetId});
-        PendingIntent updPIntent = PendingIntent.getBroadcast(this,
-                widgetId, updateIntent, 0);
 
-        Log.i("musicB", "send update");
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(getApplicationContext());
+        ComponentName widgetComponent = new ComponentName(getApplicationContext(), WidgetProvider.class);
+        int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
 
-        try {
-            updPIntent.send();
-        } catch (PendingIntent.CanceledException e) {
-            Log.e("musicB", e.getMessage());
+        for (int i : widgetIds) {
+            widgetManager.notifyAppWidgetViewDataChanged(i, R.id.list_uri);
+            Log.i("musicBlink", "send update " + i);
         }
     }
 

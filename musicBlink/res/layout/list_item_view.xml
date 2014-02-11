@@ -7,9 +7,10 @@
         android:layout_height="fill_parent">
 
     <TextView
-            android:id="@+id/music_name"
+            android:id="@+id/item_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="26sp"
+            android:background="@drawable/selector_style"
             />
 </LinearLayout>

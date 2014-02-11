@@ -3,7 +3,6 @@ package com.midnight.musicblink.mediaplayer;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,12 +13,12 @@ public class SoundPlayer {
 
     private static final SoundPlayer instance = new SoundPlayer();
     private MediaPlayer mediaPlayer;
-    private List<Uri> arrayList;
+    private List<Uri> uriQueue;
     private Context context;
 
     private SoundPlayer() {
         mediaPlayer = new MediaPlayer();
-        arrayList = Collections.synchronizedList(new ArrayList<Uri>());
+        uriQueue = Collections.synchronizedList(new ArrayList<Uri>());
     }
 
     public static SoundPlayer getInstance() {
@@ -30,22 +29,20 @@ public class SoundPlayer {
         this.context = context;
     }
 
-
     synchronized public void play(final Uri uri) {
-        if (arrayList.isEmpty()) {
-            arrayList.add(uri);
+        final boolean isEmpty = uriQueue.isEmpty();
+        uriQueue.add(uri);
+        if (isEmpty) {
             try {
                 playSound(uri);
             } catch (IOException e) {
                 onSoundEnd(uri);
             }
-        } else {
-            arrayList.add(uri);
         }
 
     }
 
-    synchronized private void playSound(final Uri uri) throws IOException {
+    private void playSound(final Uri uri) throws IOException {
         mediaPlayer.reset();
         mediaPlayer.setDataSource(context, uri);
         mediaPlayer.prepare();
@@ -53,29 +50,26 @@ public class SoundPlayer {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(final MediaPlayer mp) {
-                Log.i("musicB", "end");
                 onSoundEnd(uri);
             }
         });
     }
 
     synchronized private void onSoundEnd(final Uri uri) {
-        arrayList.remove(uri);
-        if (!arrayList.isEmpty()) {
-            Uri nextUri = arrayList.get(0);
+        uriQueue.remove(uri);
+        if (!uriQueue.isEmpty()) {
+            final Uri nextUri = uriQueue.get(0);
             try {
                 playSound(nextUri);
             } catch (IOException e) {
                 onSoundEnd(nextUri);
             }
-
         }
     }
 
 
     public void stop() {
-        arrayList.clear();
+        uriQueue.clear();
         mediaPlayer.stop();
-        mediaPlayer.reset();
     }
 }
